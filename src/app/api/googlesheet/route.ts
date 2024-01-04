@@ -84,7 +84,7 @@ export async function GET(
     try{
         const query = req.nextUrl.searchParams.get('query') as string;
         console.log(query);
-        // 구글 문서를 불러옴
+
         const doc = await loadGoogleDoc();
         if(!doc){
             return NextResponse.json({error: "Internal Server Error(load Doc)"}, {status: 500});
@@ -98,10 +98,22 @@ export async function GET(
             });
         }
 
-        
+        const rows = await sheet.getRows();
+        const regexQuery = new RegExp(query.replace('*', '.*'));
 
+        const matchingRows = rows.filter((row) => regexQuery.test(row.get("이름")));
+        const data = matchingRows.map((row) => {
+          return {
+            이름: row.get("이름"),
+            내용1: row.get("내용1"),
+            내용2: row.get("내용2"),
+            내용3: row.get("내용3"),
+            내용4: row.get("내용4"),
+            내용5: row.get("내용5"),
+          };
+        });
 
-        return NextResponse.json({success: true}, {status: 200});
+        return NextResponse.json({success: true, data: data}, {status: 200});
     } catch(error){
         return NextResponse.json({error: "Internal Server Error(get Sheets)"}, {status: 500});
     }

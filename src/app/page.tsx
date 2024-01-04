@@ -1,9 +1,10 @@
 'use client'
 import React, { useState } from 'react';
-import styles from './page.module.css'
+import styles from './page.module.css';
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('');
+  const [data, setData] = useState([]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -11,8 +12,9 @@ export default function Home() {
 
   const handleButtonClick = async () => {
     const response = await fetch(`/api/googlesheet?query=${inputValue}`);
-    const data = await response.json();
-    console.log(data);
+    const result = await response.json();
+    console.log(result);
+    setData(result.data);
   };
   
   return (
@@ -24,13 +26,30 @@ export default function Home() {
 
       <table>
         <tr>
-          <td>Text 1</td>
-          <td>Text 2</td>
-          <td>Text 3</td>
-          <td>Text 4</td>
-          <td>Text 5</td>
-          <td>Text 6</td>
+          <th>이름</th>
+          <th>내용1</th>
+          <th>내용2</th>
+          <th>내용3</th>
+          <th>내용4</th>
+          <th>내용5</th>
         </tr>
+        {data.map((row: { 
+          이름: string; 
+          내용1: string; 
+          내용2: string; 
+          내용3: string; 
+          내용4: string; 
+          내용5: string; 
+        }, index: number) => (
+          <tr key={index}>
+            <td>{row.이름}</td>
+            <td>{row.내용1}</td>
+            <td>{row.내용2}</td>
+            <td>{row.내용3}</td>
+            <td>{row.내용4}</td>
+            <td>{row.내용5}</td>
+          </tr>
+        ))}
       </table>
 
       <div>

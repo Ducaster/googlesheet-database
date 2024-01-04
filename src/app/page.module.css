@@ -107,6 +107,14 @@
 .logo {
   position: relative;
 }
+
+.table {
+  border-collapse: collapse;
+}
+.tablecell{
+  border: 1px soled white;
+}
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   .card:hover {
