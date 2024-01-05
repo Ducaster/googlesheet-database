@@ -1,30 +1,58 @@
 'use client'
 import React, { useState } from 'react';
 import styles from './page.module.css';
+import Modal  from './Modal';
 
 export default function Home() {
   const [inputValue, setInputValue] = useState('');
   const [data, setData] = useState([]);
+  const [selectedRow, setSelectedRow] = useState<Record<number, boolean>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAction, setModalAction] = useState(null);
+  const [modalData, setmodalData] = useState(null);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
 
-  const handleButtonClick = async () => {
-    const response = await fetch(`/api/googlesheet?query=${inputValue}`);
+  const handleRowClick = (index: number) => {
+    setSelectedRow({ [index]: true });
+    console.log(selectedRow);
+  };
+
+  const handleOpenModal = (action: any, data: any) => {
+    setModalAction(action);
+    setmodalData(data);
+    setIsModalOpen(true);
+  }
+
+
+  const getSelectedRowData = () => {
+    const selectedData = Object.keys(selectedRow)
+      .filter(key => selectedRow[Number(key)])
+      .map(key => data[Number(key)]);
+  
+    return selectedData;
+  };
+
+  // 찾기 버튼 클릭 이벤트 함수
+  const selectButtonClick = async () => {
+    const response = await fetch(`./api/googlesheet?query=${inputValue}`);
     const result = await response.json();
     console.log(result);
-    setData(result.data);
+    if (result && result.data) {
+      setData(result.data);
+    }
   };
   
   return (
     <main className={styles.main}>
       <div>
         <input type="text" value={inputValue} onChange={handleInputChange} />
-        <button onClick={handleButtonClick}>찾기</button>
+        <button onClick={selectButtonClick}>찾기</button>
       </div>
 
-      <table>
+      <table className={styles.table}>
         <tr>
           <th>이름</th>
           <th>내용1</th>
@@ -33,7 +61,7 @@ export default function Home() {
           <th>내용4</th>
           <th>내용5</th>
         </tr>
-        {data.map((row: { 
+        {data.map((row: {
           이름: string; 
           내용1: string; 
           내용2: string; 
@@ -41,7 +69,11 @@ export default function Home() {
           내용4: string; 
           내용5: string; 
         }, index: number) => (
-          <tr key={index}>
+          <tr 
+          key={index} 
+          onClick={() => handleRowClick(index)}
+          style={selectedRow[index] ? { backgroundColor: 'gray' } : {}
+          }>
             <td>{row.이름}</td>
             <td>{row.내용1}</td>
             <td>{row.내용2}</td>
@@ -53,10 +85,16 @@ export default function Home() {
       </table>
 
       <div>
-        <button>삽입</button>
-        <button>삭제</button>
-        <button>수정</button>
+        <button onClick={() => handleOpenModal('insert', getSelectedRowData())}>삽입</button>
+        <button onClick={() => handleOpenModal('delete', getSelectedRowData())}>삭제</button>
+        <button onClick={() => handleOpenModal('update', getSelectedRowData())}>수정</button>
       </div>
+      <Modal 
+      open={isModalOpen} 
+      onClose={() => setIsModalOpen(false)} 
+      modalAction={modalAction || ""}
+      modalData={modalData || ""}
+      />
     </main>
   );
 }

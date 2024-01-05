@@ -99,8 +99,12 @@ export async function GET(
         }
 
         const rows = await sheet.getRows();
-        const regexQuery = new RegExp(query.replace('*', '.*'));
-
+        if (!query) {
+          return NextResponse.json({success: true, data: null}, {status: 200});;
+        }else{
+        
+        const regexQuery = new RegExp(`^${query.replace('*', '.*')}$`);
+        
         const matchingRows = rows.filter((row) => regexQuery.test(row.get("이름")));
         const data = matchingRows.map((row) => {
           return {
@@ -113,7 +117,7 @@ export async function GET(
           };
         });
 
-        return NextResponse.json({success: true, data: data}, {status: 200});
+        return NextResponse.json({success: true, data: data}, {status: 200});}
     } catch(error){
         return NextResponse.json({error: "Internal Server Error(get Sheets)"}, {status: 500});
     }
