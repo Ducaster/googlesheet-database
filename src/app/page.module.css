@@ -113,10 +113,12 @@
 }
 .table th{
   border: 1px solid white;
+  padding: 5px;
 }
 .table td{
   border: 1px solid white;
   cursor: pointer;
+  padding: 5px;
 }
 
 /* Enable hover only on non-touch devices */

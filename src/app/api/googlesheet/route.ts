@@ -46,31 +46,24 @@ export async function POST(
     const body = req.body;
     if (!body) {
         console.log('Body is null');
-        return NextResponse.json({erorr: "Bad Request"},{status: 400});
+        return NextResponse.json({error: "Bad Request"},{status: 400});
     };
+    const bodyData = await new Response(body).text();
 
-    // 데이터를 텍스트로 변환
-    const processText = async () => {
-        const reader = body.getReader();
-        let result = '';
-        let done, value;
-      
-        while ({ done, value } = await reader.read(), !done) {
-          result += new TextDecoder("utf-8").decode(value);
-        }
-      
-        return result;
-      };
-    // 텍스트를 정리하고 json형식으로 변환
-    const result = await processText();
-    const cleanedBody = result.replace(/\\/g, '').slice(11, -2); 
-    const jsonData = JSON.parse(cleanedBody);
+    console.log(bodyData + ' body on routepost');
+    // json형식으로 변환
+    const jsonbody = JSON.parse(bodyData);
+
+    if(jsonbody.이름 === '') return NextResponse.json({success: false},{status: 400});
 
     // 변환한 json형식대로 sheet에 추가
     await sheet.addRow({
-        이름: jsonData.name,
-        지역: jsonData.region,
-        시간: new Date().toLocaleString(),
+        이름: jsonbody.이름,
+        내용1: jsonbody.내용1,
+        내용2: jsonbody.내용2,
+        내용3: jsonbody.내용3,
+        내용4: jsonbody.내용4,
+        내용5: jsonbody.내용5,
     });
     return NextResponse.json({success: true}, {status: 200});
   } catch(error){
@@ -120,5 +113,108 @@ export async function GET(
         return NextResponse.json({success: true, data: data}, {status: 200});}
     } catch(error){
         return NextResponse.json({error: "Internal Server Error(get Sheets)"}, {status: 500});
+    }
+}
+
+export async function PUT(
+    req: NextRequest,
+    ){
+    try{
+        const doc = await loadGoogleDoc();
+        if(!doc){
+            return NextResponse.json({error: "Internal Server Error(load Doc)"}, {status: 500});
+        }
+        let sheet = doc.sheetsByTitle["sheet1"];
+        if(!sheet){
+            console.log('Create a new sheet');
+            sheet = await doc.addSheet({
+                headerValues: ["이름", "내용1", "내용2", "내용3", "내용4", "내용5"],
+                title: "sheet1",
+            });
+        }
+
+        const body = req.body;
+        if (!body) {
+            console.log('Body is null');
+            return NextResponse.json({error: "Bad Request"},{status: 400});
+        };
+        const bodyData = await new Response(body).text();
+        const input = JSON.parse(bodyData);
+        const updateadata = input.inputData;
+        const origindata = input.jsonmodalData;
+
+        const rows = await sheet.getRows(); 
+        for (let i = 0; i < rows.length; i++) {
+            if (rows[i].get("이름") === origindata.이름 &&
+            rows[i].get("내용1") === origindata.내용1 &&
+            rows[i].get("내용2") === origindata.내용2 &&
+            rows[i].get("내용3") === origindata.내용3 &&
+            rows[i].get("내용4") === origindata.내용4 &&
+            rows[i].get("내용5") === origindata.내용5
+            ) {
+              await rows[i].delete();
+              break;
+            }
+          }
+
+          const newRow = await sheet.addRow({
+            이름: updateadata.이름,
+            내용1: updateadata.내용1,
+            내용2: updateadata.내용2,
+            내용3: updateadata.내용3,
+            내용4: updateadata.내용4,
+            내용5: updateadata.내용5
+          });
+          newRow.save();
+
+        return NextResponse.json({success: true}, {status: 200});
+    } catch(error){
+        return NextResponse.json({error: "Internal Server Error(put Sheets)"}, {status: 500});
+    }
+}
+
+export async function DELETE(
+    req: NextRequest,
+    ){
+    try{
+        const doc = await loadGoogleDoc();
+        if(!doc){
+            return NextResponse.json({error: "Internal Server Error(load Doc)"}, {status: 500});
+        }
+        let sheet = doc.sheetsByTitle["sheet1"];
+        if(!sheet){
+            console.log('Create a new sheet');
+            sheet = await doc.addSheet({
+                headerValues: ["이름", "내용1", "내용2", "내용3", "내용4", "내용5"],
+                title: "sheet1",
+            });
+        }
+
+        const body = req.body;
+        if (!body) {
+            console.log('Body is null');
+            return NextResponse.json({error: "Bad Request"},{status: 400});
+        };
+        const bodyData = await new Response(body).text();
+        const input = JSON.parse(bodyData);
+
+        const rows = await sheet.getRows(); 
+        for (let i = 0; i < rows.length; i++) {
+            if (
+                rows[i].get("이름") === input.이름 &&
+                rows[i].get("내용1") === input.내용1 &&
+                rows[i].get("내용2") === input.내용2 &&
+                rows[i].get("내용3") === input.내용3 &&
+                rows[i].get("내용4") === input.내용4 &&
+                rows[i].get("내용5") === input.내용5
+                ) {
+              await rows[i].delete();
+              break;
+            }
+          }
+
+        return NextResponse.json({success: true}, {status: 200});
+    } catch(error){
+        return NextResponse.json({error: "Internal Server Error(delete Sheets)"}, {status: 500});
     }
 }

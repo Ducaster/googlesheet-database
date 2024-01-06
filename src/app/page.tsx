@@ -21,6 +21,10 @@ export default function Home() {
   };
 
   const handleOpenModal = (action: any, data: any) => {
+    if (
+      (Object.keys(selectedRow).length === 0 && action == 'delete') ||
+      (Object.keys(selectedRow).length === 0 && action == 'update'))
+       return setIsModalOpen(false);
     setModalAction(action);
     setmodalData(data);
     setIsModalOpen(true);
@@ -28,10 +32,11 @@ export default function Home() {
 
 
   const getSelectedRowData = () => {
+    if (Object.keys(selectedRow).length === 0) return alert('선택된 행이 없습니다.');
     const selectedData = Object.keys(selectedRow)
       .filter(key => selectedRow[Number(key)])
       .map(key => data[Number(key)]);
-  
+    console.log(selectedData);
     return selectedData;
   };
 
@@ -85,7 +90,7 @@ export default function Home() {
       </table>
 
       <div>
-        <button onClick={() => handleOpenModal('insert', getSelectedRowData())}>삽입</button>
+        <button onClick={() => handleOpenModal('insert', '')}>삽입</button>
         <button onClick={() => handleOpenModal('delete', getSelectedRowData())}>삭제</button>
         <button onClick={() => handleOpenModal('update', getSelectedRowData())}>수정</button>
       </div>
