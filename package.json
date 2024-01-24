@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@prisma/client": "^5.8.1",
     "babel-plugin-styled-components": "^2.1.4",
+    "bcrypt": "^5.1.1",
     "google-auth-library": "^9.4.1",
     "google-spreadsheet": "^4.1.1",
     "jose": "^5.2.0",
@@ -23,6 +25,7 @@
     "universal-cookie": "^7.0.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
