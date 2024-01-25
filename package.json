@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@prisma/client": "^5.8.1",
+    "@types/jsonwebtoken": "^9.0.5",
     "babel-plugin-styled-components": "^2.1.4",
     "bcrypt": "^5.1.1",
     "google-auth-library": "^9.4.1",
     "google-spreadsheet": "^4.1.1",
     "jose": "^5.2.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "14.0.4",
     "next-auth": "^4.24.5",
     "react": "^18",

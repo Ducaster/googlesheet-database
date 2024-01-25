@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import styles from "./page.module.css";
-import Modal from "./modal";
+import Modal from "../components/Modal";
 
 export default function Home() {
   const [inputValue, setInputValue] = useState("");
@@ -10,6 +11,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalAction, setModalAction] = useState(null);
   const [modalData, setmodalData] = useState(null);
+  const { data: session } = useSession();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -110,6 +112,12 @@ export default function Home() {
         modalAction={modalAction || ""}
         modalData={modalData || ""}
       />
+      <button
+        className="px-12 py-4 border rounded-xl bg-red-300"
+        onClick={() => signOut()}
+      >
+        {session && session.user && `${session.user.name}님`} Log Out
+      </button>
     </main>
   );
 }
